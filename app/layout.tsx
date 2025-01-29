@@ -4,17 +4,31 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 
 export const metadata: Metadata = {
-  title: '양도승 | 웹 개발자 & 포트폴리오',
-  description: '웹 개발자 양도승의 포트폴리오. 프론트엔드 및 풀스택 개발에 대한 경험과 프로젝트 소개.',
-  keywords: ['양도승', '웹 개발자', '포트폴리오', '프론트엔드', '풀스택 개발자'],
+  title: '개발자 도승',
+  description: '개발자 양도승 기술 블로그',
+  keywords: [
+    '양도승',
+    '개발자 도승',
+    '웹 개발자',
+    '프론트엔드',
+    '풀스택 개발자',
+    'React',
+    'Next.js',
+    'JavaScript',
+    'TypeScript',
+    '포트폴리오',
+  ],
   authors: [{ name: '양도승', url: 'https://do-seung.com' }],
   creator: '양도승',
+  publisher: '양도승',
   icons: {
-    icon: '/DS.png',
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/DS.png',
   },
   openGraph: {
     title: '개발자 도승',
-    description: '개발자 양도승',
+    description: '개발자 양도승 기술 블로그',
     url: 'https://do-seung.com',
     siteName: '개발자 도승',
     images: [
@@ -22,28 +36,31 @@ export const metadata: Metadata = {
         url: '/DS.png',
         width: 1200,
         height: 630,
-        alt: '양도승 블로그',
+        alt: '개발자 도승 블로그 로고',
       },
     ],
     type: 'website',
+    locale: 'ko_KR',
   },
   twitter: {
     card: 'summary_large_image',
     title: '개발자 도승',
-    description: '개발자 양도승',
+    description: '개발자 양도승 기술 블로그.',
     images: ['/DS.png'],
   },
   robots: 'index, follow',
+  metadataBase: new URL('https://do-seung.com'),
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko">
       <head>
-        <link rel="icon" href="/DS.png" sizes="32x32" type="image/png" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/png" />
+        <link rel="apple-touch-icon" href="/DS.png" />
         <meta property="og:image" content="/DS.png" />
         <meta name="twitter:image" content="/DS.png" />
-        <meta name="google-site-verification" content="YOUR_GOOGLE_SITE_VERIFICATION_CODE" />
+        <meta name="google-site-verification" content="EPVuKhsslwvvX5ZfwzlyIxMqrdlf6-_7qUGaVmmNhy0" />
       </head>
       <body className="bg-background text-foreground">
         <Header />
