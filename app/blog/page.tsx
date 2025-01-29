@@ -1,7 +1,6 @@
 import { getNotionPages } from '@/app/api/lib/notion';
 import Link from 'next/link';
 
-// ✅ 올바른 타입 정의
 interface NotionPage {
   id: string;
   title: string;

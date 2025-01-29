@@ -1,12 +1,10 @@
 import { Client } from '@notionhq/client';
 import { QueryDatabaseResponse, PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
-// ✅ Notion API 클라이언트 설정
 const notion = new Client({
   auth: process.env.NOTION_API_KEY,
 });
 
-// ✅ Notion 페이지 데이터 타입 정의
 interface NotionPage {
   id: string;
   title: string;
@@ -23,8 +21,8 @@ export async function getNotionPages(): Promise<NotionPage[]> {
 
   return response.results
     .map(page => {
-      if (!('properties' in page)) return null; // ✅ 올바른 Notion 페이지인지 확인
-      const pageData = page as PageObjectResponse; // ✅ 타입 강제 변환
+      if (!('properties' in page)) return null;
+      const pageData = page as PageObjectResponse;
 
       return {
         id: page.id,
@@ -38,5 +36,5 @@ export async function getNotionPages(): Promise<NotionPage[]> {
             : '',
       };
     })
-    .filter(Boolean) as NotionPage[]; // ✅ `null` 값 제거
+    .filter(Boolean) as NotionPage[];
 }
