@@ -1,14 +1,21 @@
 import { getNotionPages } from '@/app/api/lib/notion';
 import Link from 'next/link';
 
+// ✅ 올바른 타입 정의
+interface NotionPage {
+  id: string;
+  title: string;
+  description: string;
+}
+
 export default async function BlogPage() {
-  const posts = await getNotionPages();
+  const posts: NotionPage[] = await getNotionPages();
 
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold">블로그</h1>
       <ul className="mt-4 space-y-4">
-        {posts.map((post: any) => (
+        {posts.map(post => (
           <li key={post.id} className="border p-4 rounded-lg">
             <h2 className="text-xl font-semibold">{post.title}</h2>
             <p className="text-gray-600">{post.description}</p>
