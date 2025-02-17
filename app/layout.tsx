@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: '개발자 양도승 기술 블로그',
   keywords: [
     '양도승',
+    '도승',
+    'didehtmd',
+    'ehtmd',
     '개발자 도승',
     '웹 개발자',
     '프론트엔드',
