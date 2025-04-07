@@ -11,11 +11,8 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
   const [content, setContent] = useState(() => {
     try {
       const parsedValue = value ? JSON.parse(value) : '';
-      if (typeof parsedValue === 'string') {
-        return parsedValue;
-      }
-      return '';
-    } catch (e) {
+      return typeof parsedValue === 'string' ? parsedValue : '';
+    } catch (_) {
       return value || '';
     }
   });
@@ -32,7 +29,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
     if (editorRef.current && content) {
       editorRef.current.innerHTML = content;
     }
-  }, []);
+  }, [content]);
 
   const handleInput = () => {
     if (editorRef.current) {
@@ -42,6 +39,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
       }, 0);
     }
   };
+
   return (
     <div className="prose prose-lg max-w-none">
       <div
