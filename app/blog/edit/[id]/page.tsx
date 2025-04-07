@@ -17,7 +17,6 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   const [savedStatus, setSavedStatus] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  // 기존 게시글 데이터 가져오기
   useEffect(() => {
     async function fetchPost() {
       try {
@@ -29,17 +28,13 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
         const post = await response.json();
 
-        // 제목 설정
         setTitle(post.title || '');
 
-        // 본문 내용 설정 (JSON 파싱 시도)
         if (post.content) {
           try {
-            // JSON 문자열인 경우
             const parsedContent = JSON.parse(post.content);
             setContent(JSON.stringify(parsedContent));
-          } catch (e) {
-            // 일반 문자열인 경우
+          } catch (_) {
             setContent(post.content);
           }
         }
@@ -55,7 +50,6 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     fetchPost();
   }, [postId, router]);
 
-  // 게시글 저장 함수 (생성과 유사하지만 PUT 메소드 사용)
   async function savePost(publish = false) {
     if (!title.trim()) {
       setSavedStatus('제목을 입력하세요');
@@ -73,15 +67,15 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       let processedContent = content;
       try {
         processedContent = JSON.parse(content);
-      } catch (e) {}
+      } catch (_) {}
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`, {
-        method: 'PUT', // 수정이므로 PUT 메소드 사용
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: title,
+          title,
           content: processedContent,
           published: publish,
         }),
@@ -108,7 +102,6 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     }
   }
 
-  // 로딩 중 표시
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
