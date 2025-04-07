@@ -2,6 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+interface Block {
+  id: string;
+  content: string;
+}
+
 interface ContentEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -12,7 +17,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
     try {
       const parsedValue = value ? JSON.parse(value) : '';
       return typeof parsedValue === 'string' ? parsedValue : '';
-    } catch (_) {
+    } catch (e) {
       return value || '';
     }
   });
@@ -20,22 +25,19 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (content) {
-      onChange(JSON.stringify(content));
-    }
+    onChange(JSON.stringify(content));
   }, [content, onChange]);
 
   useEffect(() => {
     if (editorRef.current && content) {
       editorRef.current.innerHTML = content;
     }
-  }, [content]);
+  }, []);
 
   const handleInput = () => {
     if (editorRef.current) {
       setTimeout(() => {
-        const rawHTML = editorRef.current?.innerHTML || '';
-        setContent(rawHTML);
+        setContent(editorRef.current?.innerHTML || '');
       }, 0);
     }
   };
@@ -51,7 +53,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
       />
 
       <div className="text-center mt-8 text-gray-400">
-        <p className="text-sm">본문 내용을 입력하세요. 서식과 줄바꿈이 그대로 유지됩니다.</p>
+        <p className="text-sm">본문 내용을 입력하세요. 줄바꿈과 띄어쓰기가 모두 유지됩니다.</p>
       </div>
     </div>
   );
