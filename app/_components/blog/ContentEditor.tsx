@@ -8,33 +8,27 @@ interface ContentEditorProps {
 }
 
 export default function ContentEditor({ value, onChange }: ContentEditorProps) {
-  const [content, setContent] = useState(() => {
-    try {
-      const parsedValue = value ? JSON.parse(value) : '';
-      return typeof parsedValue === 'string' ? parsedValue : '';
-    } catch {
-      return value || '';
-    }
-  });
-
   const editorRef = useRef<HTMLDivElement>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (content) {
-      onChange(content);
+    if (editorRef.current && !isInitialized) {
+      editorRef.current.innerHTML = value || '';
+      setIsInitialized(true);
     }
-  }, [content, onChange]);
-
-  useEffect(() => {
-    if (editorRef.current && content) {
-      editorRef.current.innerHTML = content;
-    }
-  }, [content]);
+  }, [value, isInitialized]);
 
   const handleInput = () => {
     if (editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      onChange(html);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
       setTimeout(() => {
-        setContent(editorRef.current?.innerHTML || '');
+        handleInput();
       }, 0);
     }
   };
@@ -47,6 +41,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
         suppressContentEditableWarning
         className="outline-none min-h-[300px] leading-relaxed focus:ring-2 focus:ring-blue-100 rounded p-1"
         onInput={handleInput}
+        onKeyDown={handleKeyDown}
       />
 
       <div className="text-center mt-8 text-gray-400">
