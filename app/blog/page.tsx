@@ -3,10 +3,19 @@ import Link from 'next/link';
 
 function stripHtml(html: string | undefined): string {
   if (!html) return '';
-  return html
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+
+  let result = html.replace(/<[^>]+>/g, ' ');
+
+  result = result
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x2F;/g, '/');
+
+  return result.replace(/\s+/g, ' ').trim();
 }
 
 export default async function BlogPage() {
