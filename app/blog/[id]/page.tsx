@@ -3,8 +3,14 @@ import { getPost } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-export default async function BlogPostPage({ params }: { params: { id: string } }) {
-  const id = params.id;
+type PageProps = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function BlogPostPage({ params, searchParams: _searchParams }: PageProps) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
   const post = await getPost(id);
 
   if (!post) {
@@ -45,13 +51,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
         {post.content ? (
           <div
             dangerouslySetInnerHTML={{
-              __html: (() => {
-                try {
-                  return JSON.parse(post.content);
-                } catch (_) {
-                  return post.content;
-                }
-              })(),
+              __html: post.content,
             }}
           />
         ) : (
