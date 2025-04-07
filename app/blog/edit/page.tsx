@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EditorHeader from '@/app/_components/blog/EditorHeader';
 import TitleEditor from '@/app/_components/blog/TitleEditor';
@@ -21,6 +21,7 @@ export default function EditPage() {
       return;
     }
 
+    // 상태 업데이트
     if (publish) {
       setIsPublishing(true);
     } else {
@@ -28,18 +29,22 @@ export default function EditPage() {
     }
 
     try {
+      // JSON 형식 처리
       let processedContent = content;
       try {
         processedContent = JSON.parse(content);
-      } catch (e) {}
+      } catch (_) {
+        // JSON 파싱 실패 시 원본 콘텐츠 유지
+      }
 
+      // API 요청
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: title,
+          title,
           content: processedContent,
           published: publish,
         }),
@@ -51,6 +56,7 @@ export default function EditPage() {
 
       const data = await response.json();
 
+      // 결과 처리
       if (publish) {
         router.push(`/blog/${data.id}`);
       } else {
@@ -74,7 +80,6 @@ export default function EditPage() {
         isSaving={isSaving}
         isPublishing={isPublishing}
         savedStatus={savedStatus}
-        isEditMode={true}
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
