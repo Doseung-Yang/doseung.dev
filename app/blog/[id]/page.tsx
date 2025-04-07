@@ -1,15 +1,10 @@
 import EditDeleteButtons from '@/app/_components/blog/DeleteButton';
-import { getPost, Post } from '@/app/api/lib/get-post';
+import { getPost } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-async function getParamsId(params: { id: string } | Promise<{ id: string }>): Promise<string> {
-  const resolvedParams = await params;
-  return resolvedParams.id;
-}
-
-export default async function BlogPostPage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
-  const id = await getParamsId(params);
+export default async function BlogPostPage({ params }: { params: { id: string } }) {
+  const id = params.id;
   const post = await getPost(id);
 
   if (!post) {
@@ -53,7 +48,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
               __html: (() => {
                 try {
                   return JSON.parse(post.content);
-                } catch (e) {
+                } catch (_) {
                   return post.content;
                 }
               })(),
