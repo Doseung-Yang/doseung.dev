@@ -8,7 +8,7 @@ interface EditorHeaderProps {
   isSaving: boolean;
   isPublishing: boolean;
   savedStatus: string;
-  isEditMode: boolean;
+  isEditMode?: boolean;
 }
 
 export default function EditorHeader({
@@ -34,7 +34,7 @@ export default function EditorHeader({
               />
             </svg>
           </button>
-          <span className="text-lg font-medium">새 게시글</span>
+          <span className="text-lg font-medium">{isEditMode ? '게시글 수정' : '새 게시글'}</span>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -57,7 +57,7 @@ export default function EditorHeader({
             disabled={isPublishing}
             className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
           >
-            {isPublishing ? '발행 중...' : '발행하기'}
+            {isPublishing ? (isEditMode ? '수정 중...' : '발행 중...') : isEditMode ? '수정 완료' : '발행하기'}
           </button>
         </div>
       </div>
