@@ -1,6 +1,14 @@
 import { getPosts, Post } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 
+function stripHtml(html: string | undefined): string {
+  if (!html) return '';
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export default async function BlogPage() {
   const posts: Post[] = await getPosts();
 
@@ -21,7 +29,7 @@ export default async function BlogPage() {
           posts.map(post => (
             <li key={post.id} className="border p-4 rounded-lg hover:shadow-md transition">
               <h2 className="text-xl font-semibold">{post.title}</h2>
-              <p className="text-gray-600 line-clamp-2 mt-2">{post.description || post.content}</p>
+              <p className="text-gray-600 line-clamp-2 mt-2">{stripHtml(post.content)}</p>
               {post.createdAt && (
                 <p className="text-sm text-gray-500 mt-2">{new Date(post.createdAt).toLocaleDateString('ko-KR')}</p>
               )}
