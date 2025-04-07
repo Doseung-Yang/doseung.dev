@@ -2,11 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-interface Block {
-  id: string;
-  content: string;
-}
-
 interface ContentEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -17,7 +12,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
     try {
       const parsedValue = value ? JSON.parse(value) : '';
       return typeof parsedValue === 'string' ? parsedValue : '';
-    } catch (e) {
+    } catch {
       return value || '';
     }
   });
@@ -25,14 +20,16 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    onChange(JSON.stringify(content));
+    if (content) {
+      onChange(content);
+    }
   }, [content, onChange]);
 
   useEffect(() => {
     if (editorRef.current && content) {
       editorRef.current.innerHTML = content;
     }
-  }, []);
+  }, [content]);
 
   const handleInput = () => {
     if (editorRef.current) {
