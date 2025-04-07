@@ -34,7 +34,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           try {
             const parsedContent = JSON.parse(post.content);
             setContent(JSON.stringify(parsedContent));
-          } catch (_) {
+          } catch {
             setContent(post.content);
           }
         }
@@ -67,7 +67,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       let processedContent = content;
       try {
         processedContent = JSON.parse(content);
-      } catch (_) {}
+      } catch {}
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`, {
         method: 'PUT',
