@@ -21,7 +21,6 @@ export default function EditPage() {
       return;
     }
 
-    // 상태 업데이트
     if (publish) {
       setIsPublishing(true);
     } else {
@@ -29,15 +28,11 @@ export default function EditPage() {
     }
 
     try {
-      // JSON 형식 처리
       let processedContent = content;
       try {
         processedContent = JSON.parse(content);
-      } catch (_) {
-        // JSON 파싱 실패 시 원본 콘텐츠 유지
-      }
+      } catch (_e) {}
 
-      // API 요청
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`, {
         method: 'POST',
         headers: {
@@ -45,7 +40,7 @@ export default function EditPage() {
         },
         body: JSON.stringify({
           title,
-          content: processedContent,
+          content,
           published: publish,
         }),
       });
@@ -56,7 +51,6 @@ export default function EditPage() {
 
       const data = await response.json();
 
-      // 결과 처리
       if (publish) {
         router.push(`/blog/${data.id}`);
       } else {
