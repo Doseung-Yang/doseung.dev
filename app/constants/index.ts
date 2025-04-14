@@ -24,7 +24,5 @@ export const skills = [
 ];
 
 export const ctaButtons = [
-  { href: 'https://career.programmers.co.kr/pr/didehtmd_8570', text: '포트폴리오 보기' },
-  { href: 'https://github.com/didehtmd', text: 'GitHub 방문', icon: createElement(SiGithub) },
-  { href: 'https://helpcenter.wadiz.kr/hc/ko', text: '와디즈 도움말센터', icon: createElement(SiZendesk) },
+  { href: 'https://www.rallit.com/resumes/1449721@doseung.dev/%EC%96%91%EB%8F%84%EC%8A%B9', text: 'RESUME' },
 ];

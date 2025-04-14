@@ -21,10 +21,11 @@ export default function HeroSection() {
         >
           <TypingEffect
             text={[
-              '와디즈 FE 개발 및 유지보수',
-              'Next.js & TypeScript 전문가',
-              'SEO 최적화 (트래픽 160% 증가)',
-              'AI 챗봇 Deep Learning 연동',
+              '기능보다 구조',
+              '속도보다 안정성을',
+              '사용자의 경험을',
+              '유저와 접점을 통해 더 좋은 프로덕트를',
+              '프로덕트 엔지니어로 기여하고 싶습니다.',
             ]}
             speed={100}
             pause={1500}
