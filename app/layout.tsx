@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { ThemeProvider } from './util/theme-provider';
 
 export const metadata: Metadata = {
   title: '개발자 도승',
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/png" />
         <link rel="apple-touch-icon" href="/DS.png" />
@@ -66,9 +67,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="google-site-verification" content="EPVuKhsslwvvX5ZfwzlyIxMqrdlf6-_7qUGaVmmNhy0" />
       </head>
       <body className="bg-background text-foreground">
-        <Header />
-        <main className="container mx-auto px-4 py-8">{children}</main>
-        <Footer />
+        <ThemeProvider>
+          <Header />
+          <main className="container mx-auto px-4 py-8">{children}</main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );
