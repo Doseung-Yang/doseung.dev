@@ -6,9 +6,10 @@ interface TypingEffectProps {
   text: string[];
   speed?: number;
   pause?: number;
+  className?: string;
 }
 
-export default function TypingEffect({ text, speed = 100, pause = 2000 }: TypingEffectProps) {
+export default function TypingEffect({ text, speed = 100, pause = 2000, className = '' }: TypingEffectProps) {
   const [currentText, setCurrentText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -37,9 +38,9 @@ export default function TypingEffect({ text, speed = 100, pause = 2000 }: Typing
   }, [currentText, isDeleting, currentIndex, text, speed, pause]);
 
   return (
-    <div className="text-4xl font-bold text-center text-black">
+    <div className={`text-4xl font-bold text-center text-foreground ${className}`}>
       {currentText}
-      <span className="blinking-cursor">|</span>
+      <span className="blinking-cursor text-primary">|</span>
     </div>
   );
 }
