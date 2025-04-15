@@ -7,6 +7,23 @@
   --foreground: #171717;
 }
 
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #171717;
+  --card-foreground: #ededed;
+  --border: #374151;
+  --input: #374151;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1f2937;
+  --secondary-foreground: #f9fafb;
+  --accent: #1f2937;
+  --accent-foreground: #f9fafb;
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
