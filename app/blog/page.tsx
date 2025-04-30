@@ -1,11 +1,10 @@
-import { getPosts, Post } from '@/app/api/lib/get-post';
+'use client';
 import Link from 'next/link';
+import useSWR from 'swr';
 
 function stripHtml(html: string | undefined): string {
   if (!html) return '';
-
   let result = html.replace(/<[^>]+>/g, ' ');
-
   result = result
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&')
@@ -14,12 +13,15 @@ function stripHtml(html: string | undefined): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&#x2F;/g, '/');
-
   return result.replace(/\s+/g, ' ').trim();
 }
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
-export default async function BlogPage() {
-  const posts: Post[] = await getPosts();
+export default function BlogPage() {
+  const { data: posts, isLoading, error } = useSWR('/api/posts', fetcher, { refreshInterval: 5000 });
+
+  if (isLoading) return <div>로딩중...</div>;
+  if (error) return <div>에러가 발생했습니다.</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
@@ -35,7 +37,7 @@ export default async function BlogPage() {
 
       <ul className="mt-4 space-y-4">
         {posts && posts.length > 0 ? (
-          posts.map(post => (
+          posts.map((post: any) => (
             <li key={post.id} className="border p-4 rounded-lg hover:shadow-md transition">
               <h2 className="text-xl font-semibold">{post.title}</h2>
               <p className="text-gray-600 line-clamp-2 mt-2">{stripHtml(post.content)}</p>
