@@ -67,7 +67,7 @@ export default function EditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <EditorHeader
         onSave={() => savePost(false)}
         onPublish={() => savePost(true)}
