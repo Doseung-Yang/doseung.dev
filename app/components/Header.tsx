@@ -12,12 +12,8 @@ export default function Header() {
           <Link href="/blog" className="text-foreground hover:text-primary">
             블로그
           </Link>
-          <Link href="/portfolio" className="text-foreground hover:text-primary">
-            포트폴리오
-          </Link>
-          <Link href="/about" className="text-foreground hover:text-primary">
-            소개
-          </Link>
+          <div className="text-foreground hover:text-primary">포트폴리오</div>
+          <div className="text-foreground hover:text-primary">소개</div>
         </nav>
       </div>
     </header>
