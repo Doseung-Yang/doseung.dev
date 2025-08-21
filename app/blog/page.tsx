@@ -17,6 +17,11 @@ function stripHtml(html: string | undefined): string {
 
   return result.replace(/\s+/g, ' ').trim();
 }
+export const metadata = {
+  title: '양도승 | 기술 블로그',
+  description: '양도승 기술 블로그',
+  alternates: { canonical: '/blog' },
+};
 
 export default async function BlogPage() {
   const posts: Post[] = await getPosts();
@@ -40,27 +45,14 @@ export default async function BlogPage() {
               key={post.id}
               className="border border-border bg-card text-card-foreground p-4 rounded-lg hover:shadow-md transition"
             >
-              <h2 className="text-xl font-semibold">{post.title}</h2>
-              <p className="text-muted-foreground line-clamp-2 mt-2">{stripHtml(post.content)}</p>
-              {post.createdAt && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                </p>
-              )}
-              <Link href={`/blog/${post.id}`} className="text-primary inline-flex items-center mt-2">
-                더 보기
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <Link href={`/blog/${post.id}`} className="block">
+                <h2 className="text-xl font-semibold">{post.title}</h2>
+                <p className="text-muted-foreground line-clamp-2 mt-2">{stripHtml(post.content)}</p>
+                {post.createdAt && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                  </p>
+                )}
               </Link>
             </li>
           ))

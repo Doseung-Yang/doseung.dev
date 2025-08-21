@@ -16,11 +16,22 @@ export const metadata: Metadata = {
     '웹 개발자',
     '프론트엔드',
     '풀스택 개발자',
-    'React',
-    'Next.js',
+    'react',
+    'next.js',
     'JavaScript',
     'TypeScript',
     '포트폴리오',
+    '기술 블로그',
+    '개발 블로그',
+    'nest',
+    'next',
+    '조코딩',
+    '인프런',
+    '노마드코더',
+    '클론 코딩',
+    '크롤링',
+    '크롤러',
+    '강의',
   ],
   authors: [{ name: '양도승', url: 'https://do-seung.com' }],
   creator: '양도승',
@@ -60,6 +71,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
+        <meta name="naver-site-verification" content="85aa45c91ab7900ee949467cdf8ec36f42e79d36" />
         <link rel="icon" href="/favicon.ico" sizes="32x32" type="image/png" />
         <link rel="apple-touch-icon" href="/DS.png" />
         <meta property="og:image" content="/DS.png" />
@@ -72,6 +84,34 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <main className="container mx-auto px-4 py-8">{children}</main>
           <Footer />
         </ThemeProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: '양도승',
+              url: 'https://do-seung.com',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://do-seung.com/search?q={search_term_string}',
+                'query-input': 'required name=search_term_string',
+              },
+            }).replace(/</g, '\\u003c'),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: '양도승',
+              url: 'https://do-seung.com',
+              logo: 'https://do-seung.com/DS.png',
+            }).replace(/</g, '\\u003c'),
+          }}
+        />
       </body>
     </html>
   );
