@@ -2,7 +2,15 @@
 
 import { FormEvent, useState } from 'react';
 
-export default function CommentForm({ postId }: { postId: string }) {
+type SubmittedPayload = { author?: string; content: string };
+
+export default function CommentForm({
+  postId,
+  onSubmitted,
+}: {
+  postId: string;
+  onSubmitted?: (c: SubmittedPayload) => void;
+}) {
   const [author, setAuthor] = useState('');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -15,23 +23,29 @@ export default function CommentForm({ postId }: { postId: string }) {
       return;
     }
     setSubmitting(true);
+    setMsg(null);
+    const payload: SubmittedPayload = {
+      author: author.trim() || undefined,
+      content,
+    };
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          author: author.trim() || undefined,
-          content,
-        }),
+        body: JSON.stringify(payload),
         cache: 'no-store',
       });
       if (!res.ok) {
+        // API 미구현(404) 등일 때도 화면에는 즉시 반영
+        if (res.status === 404) onSubmitted?.(payload);
         const text = await res.text().catch(() => '');
         throw new Error(text || `HTTP ${res.status}`);
       }
+      // 성공에도 즉시 반영
+      onSubmitted?.(payload);
       setMsg('등록되었습니다.');
       setContent('');
-    } catch (err) {
+    } catch (_err) {
       setMsg('등록에 실패했습니다.');
     } finally {
       setSubmitting(false);

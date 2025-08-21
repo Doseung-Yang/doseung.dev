@@ -1,4 +1,4 @@
-import CommentForm from '@/app/_components/blog/CommentForm';
+import CommentsSection from '@/app/_components/blog/CommentsSection';
 import EditDeleteButtons from '@/app/_components/blog/DeleteButton';
 import { getPost } from '@/app/api/lib/get-post';
 import Link from 'next/link';
@@ -74,7 +74,7 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
         )}
       </div>
 
-      <CommentForm postId={id} />
+      <CommentsSection postId={id} />
 
       <section className="mt-16 pt-8 border-t border-border">
         <h2 className="text-2xl font-bold mb-6">이런 글도 읽어보세요</h2>
