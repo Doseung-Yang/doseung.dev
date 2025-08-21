@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type SubmittedPayload = { author?: string; content: string };
 
@@ -15,37 +16,29 @@ export default function CommentForm({
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const router = useRouter();
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!content.trim()) {
-      setMsg('댓글 내용을 입력해주세요.');
-      return;
-    }
+    if (!content.trim()) return setMsg('댓글 내용을 입력해주세요.');
     setSubmitting(true);
     setMsg(null);
-    const payload: SubmittedPayload = {
-      author: author.trim() || undefined,
-      content,
-    };
+    const payload: SubmittedPayload = { author: author.trim() || undefined, content };
+
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}/comments`, {
+      const base = process.env.NEXT_PUBLIC_API_URL!;
+      const res = await fetch(`${base}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ postId, ...payload }),
         cache: 'no-store',
       });
-      if (!res.ok) {
-        // API 미구현(404) 등일 때도 화면에는 즉시 반영
-        if (res.status === 404) onSubmitted?.(payload);
-        const text = await res.text().catch(() => '');
-        throw new Error(text || `HTTP ${res.status}`);
-      }
-      // 성공에도 즉시 반영
-      onSubmitted?.(payload);
+      if (!res.ok) throw new Error(await res.text().catch(() => ''));
+      onSubmitted?.(payload); // 낙관적 UI
       setMsg('등록되었습니다.');
       setContent('');
-    } catch (_err) {
+      router.refresh(); // 서버 캐시 무효화
+    } catch {
       setMsg('등록에 실패했습니다.');
     } finally {
       setSubmitting(false);
