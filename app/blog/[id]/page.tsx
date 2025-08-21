@@ -1,5 +1,7 @@
+import CommentForm from '@/app/_components/blog/CommentForm';
 import EditDeleteButtons from '@/app/_components/blog/DeleteButton';
 import { getPost } from '@/app/api/lib/get-post';
+import { pickCommentsById } from '@/app/util/mock-comments';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -20,30 +22,12 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
   return (
     <article className="max-w-3xl mx-auto py-10 px-6 text-foreground">
       <header className="mb-8">
-        <Link href="/blog" className="text-primary hover:underline mb-4 inline-flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          블로그 목록으로
-        </Link>
         <EditDeleteButtons postId={id} />
         <h1 className="text-4xl font-bold mt-6 mb-2">{post.title}</h1>
 
         <div className="flex items-center text-muted-foreground text-sm">
           {post.createdAt && (
-            <time dateTime={post.createdAt}>
-              {new Date(post.createdAt).toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </time>
+            <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</time>
           )}
         </div>
       </header>
@@ -59,47 +43,7 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
         )}
       </div>
 
-      <section className="mt-16 pt-8 border-t border-border">
-        <h2 className="text-2xl font-bold mb-6">댓글</h2>
-
-        <div className="mb-10 bg-secondary p-6 rounded-lg text-secondary-foreground">
-          <h3 className="text-lg font-medium mb-4">댓글 작성</h3>
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="이름 (선택사항)"
-              className="w-full p-2 border border-input bg-card text-foreground rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <textarea
-              placeholder="댓글을 입력해주세요"
-              className="w-full p-2 border border-input bg-card text-foreground rounded"
-              rows={4}
-            ></textarea>
-          </div>
-          <button className="bg-primary text-primary-foreground px-4 py-2 rounded hover:opacity-90 transition">
-            댓글 등록
-          </button>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-card text-card-foreground p-4 rounded-lg shadow-sm">
-            <p className="mb-2">바람은 왱왱왱 마음은 잉잉잉</p>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>양관식</span>
-              <time>2025년 4월 5일</time>
-            </div>
-          </div>
-          <div className="bg-card text-card-foreground p-4 rounded-lg shadow-sm">
-            <p className="mb-2">다같이 오는 소풍인줄 알았는데, 저마다 물때가 달랐다.</p>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>오애순</span>
-              <time>2025년 4월 3일</time>
-            </div>
-          </div>
-        </div>
-      </section>
+      <CommentForm postId="{id}" />
 
       <section className="mt-16 pt-8 border-t border-border">
         <h2 className="text-2xl font-bold mb-6">이런 글도 읽어보세요</h2>
