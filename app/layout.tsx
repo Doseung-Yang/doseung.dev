@@ -97,7 +97,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 target: 'https://do-seung.com/search?q={search_term_string}',
                 'query-input': 'required name=search_term_string',
               },
-            }),
+            }).replace(/</g, '\\u003c'),
           }}
         />
         <script
@@ -109,7 +109,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               name: '양도승',
               url: 'https://do-seung.com',
               logo: 'https://do-seung.com/DS.png',
-            }),
+            }).replace(/</g, '\\u003c'),
           }}
         />
       </body>

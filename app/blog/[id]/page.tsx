@@ -107,7 +107,7 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
             author: [{ '@type': 'Person', name: 'Doseung Yang' }],
             publisher: { '@type': 'Organization', name: '개발자 도승' },
             mainEntityOfPage: `https://do-seung.com/blog/${id}`,
-          }),
+          }).replace(/</g, '\\u003c'),
         }}
       />
       <script
@@ -119,7 +119,7 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
             name: '블로그',
             url: 'https://do-seung.com/blog',
             isPartOf: { '@type': 'WebSite', url: 'https://do-seung.com' },
-          }),
+          }).replace(/</g, '\\u003c'),
         }}
       />
     </article>

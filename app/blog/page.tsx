@@ -20,7 +20,7 @@ function stripHtml(html: string | undefined): string {
 export const metadata = {
   title: '양도승 | 기술 블로그',
   description: '양도승 기술 블로그',
-  alternates: { canonical: 'https://do-seung.com/' },
+  alternates: { canonical: '/blog' },
 };
 
 export default async function BlogPage() {
