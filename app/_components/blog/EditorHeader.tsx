@@ -23,7 +23,7 @@ export default function EditorHeader({
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-10 bg-card border-b border-border shadow-sm">
+    <header className="sticky top-0 z-10 ">
       <div className="max-w-screen-2xl mx-auto px-4 flex items-center justify-between h-16">
         <div className="flex items-center space-x-4">
           <button onClick={() => router.push('/blog')} className="text-foreground hover:text-primary">
@@ -60,8 +60,6 @@ export default function EditorHeader({
           >
             {isPublishing ? (isEditMode ? '수정 중...' : '발행 중...') : isEditMode ? '수정 완료' : '발행하기'}
           </button>
-
-          <ThemeToggle />
         </div>
       </div>
     </header>
