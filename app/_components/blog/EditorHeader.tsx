@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/app/components/ThemeToggle';
 
 interface EditorHeaderProps {
   onSave: () => void;
@@ -22,10 +23,10 @@ export default function EditorHeader({
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-10 bg-card border-b border-border shadow-sm">
       <div className="max-w-screen-2xl mx-auto px-4 flex items-center justify-between h-16">
         <div className="flex items-center space-x-4">
-          <button onClick={() => router.push('/blog')} className="text-gray-600 hover:text-gray-900">
+          <button onClick={() => router.push('/blog')} className="text-foreground hover:text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"
@@ -34,7 +35,7 @@ export default function EditorHeader({
               />
             </svg>
           </button>
-          <span className="text-lg font-medium">{isEditMode ? '게시글 수정' : '새 게시글'}</span>
+          <span className="text-lg font-medium text-foreground">{isEditMode ? '게시글 수정' : '새 게시글'}</span>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -47,7 +48,7 @@ export default function EditorHeader({
           <button
             onClick={onSave}
             disabled={isSaving}
-            className="px-3 py-1.5 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm rounded-md border border-border text-foreground hover:bg-accent disabled:opacity-50"
           >
             {isSaving ? '저장 중...' : '저장'}
           </button>
@@ -55,10 +56,12 @@ export default function EditorHeader({
           <button
             onClick={onPublish}
             disabled={isPublishing}
-            className="px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
             {isPublishing ? (isEditMode ? '수정 중...' : '발행 중...') : isEditMode ? '수정 완료' : '발행하기'}
           </button>
+
+          <ThemeToggle />
         </div>
       </div>
     </header>

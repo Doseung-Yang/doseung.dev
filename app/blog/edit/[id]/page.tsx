@@ -104,9 +104,9 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center text-foreground">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4">게시글을 불러오는 중입니다...</p>
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background text-foreground">
       <EditorHeader
         onSave={() => savePost(false)}
         onPublish={() => savePost(true)}
@@ -126,7 +126,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <TitleEditor value={title} onChange={setTitle} />
-        <div className="border-b mb-6"></div>
+        <div className="border-b border-border mb-6"></div>
         <ContentEditor value={content} onChange={setContent} />
       </div>
     </div>

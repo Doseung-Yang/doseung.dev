@@ -46,13 +46,13 @@ export default function EditDeleteButtons({ postId }: EditDeleteButtonsProps) {
     <div className="flex items-center space-x-2">
       <button
         onClick={handleEdit}
-        className="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-50"
+        className="px-3 py-1 text-sm border border-primary text-primary rounded hover:opacity-90"
       >
         수정
       </button>
       <button
         onClick={handleDeleteClick}
-        className="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-50"
+        className="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:opacity-90"
         disabled={isDeleting}
       >
         {isDeleting ? '삭제 중...' : '삭제'}
@@ -60,13 +60,13 @@ export default function EditDeleteButtons({ postId }: EditDeleteButtonsProps) {
 
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+          <div className="bg-card text-card-foreground border border-border p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-lg font-medium mb-4">게시글 삭제</h3>
             <p>정말로 이 게시글을 삭제하시겠습니까?</p>
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded"
+                className="px-4 py-2 text-sm border border-border rounded"
                 disabled={isDeleting}
               >
                 취소
