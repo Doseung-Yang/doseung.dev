@@ -17,6 +17,11 @@ function stripHtml(html: string | undefined): string {
 
   return result.replace(/\s+/g, ' ').trim();
 }
+export const metadata = {
+  title: '양도승 | 기술 블로그',
+  description: '양도승 기술 블로그',
+  alternates: { canonical: 'https://do-seung.com/' },
+};
 
 export default async function BlogPage() {
   const posts: Post[] = await getPosts();

@@ -8,7 +8,39 @@ type PageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const post = await getPost(id);
+  if (!post) return {};
 
+  const title = post.title;
+  const description = (post.content || '')
+    .replace(/<[^>]+>/g, ' ')
+    .trim()
+    .slice(0, 140);
+  const url = `https://do-seung.com/blog/${id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      url,
+      title,
+      description,
+      siteName: '양도승 기술 블로그',
+      images: ['/DS.png'],
+      locale: 'ko_KR',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/DS.png'],
+    },
+  };
+}
 export default async function BlogPostPage({ params, searchParams: _searchParams }: PageProps) {
   const resolvedParams = await params;
   const id = resolvedParams.id;
@@ -63,6 +95,33 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
           </Link>
         </div>
       </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: post.title,
+            datePublished: post.createdAt,
+            dateModified: post.updatedAt || post.createdAt,
+            author: [{ '@type': 'Person', name: 'Doseung Yang' }],
+            publisher: { '@type': 'Organization', name: '개발자 도승' },
+            mainEntityOfPage: `https://do-seung.com/blog/${id}`,
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: '블로그',
+            url: 'https://do-seung.com/blog',
+            isPartOf: { '@type': 'WebSite', url: 'https://do-seung.com' },
+          }),
+        }}
+      />
     </article>
   );
 }
