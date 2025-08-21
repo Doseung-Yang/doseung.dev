@@ -10,8 +10,8 @@ export default function CTASection() {
       transition={{ duration: 1 }}
       className="mt-12 flex flex-wrap gap-4 justify-center"
     >
-      {ctaButtons.map(({ href, text, icon }) => (
-        <CTAButton key={text} href={href} text={text} icon={icon} />
+      {ctaButtons.map(({ href, text }) => (
+        <CTAButton key={text} href={href} text={text} />
       ))}
     </motion.div>
   );

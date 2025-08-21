@@ -25,7 +25,7 @@ export default function TitleEditor({ value, onChange }: TitleEditorProps) {
         onChange={e => onChange(e.target.value)}
         placeholder="제목을 입력하세요"
         className="w-full text-4xl font-bold resize-none overflow-hidden border-none focus:outline-none focus:ring-0"
-        style={{ height: 'auto', minHeight: '60px' }}
+        style={{ height: 'auto' }}
         rows={1}
       />
     </div>
