@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 export default function CommentForm({ postId }: { postId: string }) {
   const [author, setAuthor] = useState('');
@@ -8,7 +8,7 @@ export default function CommentForm({ postId }: { postId: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!content.trim()) {
       setMsg('댓글 내용을 입력해주세요.');
@@ -25,7 +25,10 @@ export default function CommentForm({ postId }: { postId: string }) {
         }),
         cache: 'no-store',
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `HTTP ${res.status}`);
+      }
       setMsg('등록되었습니다.');
       setContent('');
     } catch (err) {

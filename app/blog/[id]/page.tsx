@@ -1,7 +1,6 @@
 import CommentForm from '@/app/_components/blog/CommentForm';
 import EditDeleteButtons from '@/app/_components/blog/DeleteButton';
 import { getPost } from '@/app/api/lib/get-post';
-import { pickCommentsById } from '@/app/util/mock-comments';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -43,7 +42,7 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
         )}
       </div>
 
-      <CommentForm postId="{id}" />
+      <CommentForm postId={id} />
 
       <section className="mt-16 pt-8 border-t border-border">
         <h2 className="text-2xl font-bold mb-6">이런 글도 읽어보세요</h2>
