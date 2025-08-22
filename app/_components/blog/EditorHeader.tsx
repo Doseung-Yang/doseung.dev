@@ -54,7 +54,10 @@ export default function EditorHeader({
           </button>
 
           <button
-            onClick={onPublish}
+            onClick={async () => {
+              await onPublish();
+              router.refresh();
+            }}
             disabled={isPublishing}
             className="px-3 py-1.5 text-sm rounded-md bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
           >
