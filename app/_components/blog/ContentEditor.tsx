@@ -34,7 +34,7 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
   };
 
   return (
-    <div className="prose prose-lg max-w-none dark:prose-invert text-foreground">
+    <div className="prose prose-lg max-w-none dark:prose-invert text-foreground relative">
       <div
         ref={editorRef}
         contentEditable
@@ -42,11 +42,13 @@ export default function ContentEditor({ value, onChange }: ContentEditorProps) {
         className="outline-none min-h-[300px] leading-relaxed focus:ring-2 focus:ring-primary/10 rounded p-1"
         onInput={handleInput}
         onKeyDown={handleKeyDown}
+        data-placeholder="본문 내용을 입력하세요..."
       />
-
-      <div className="text-center mt-8 text-muted-foreground">
-        <p className="text-sm">본문 내용을 입력하세요. 줄바꿈과 띄어쓰기가 모두 유지됩니다.</p>
-      </div>
+      {!value && (
+        <div className="absolute top-0 left-0 pointer-events-none  text-lg leading-relaxed p-1">
+          본문 내용을 입력하세요
+        </div>
+      )}
     </div>
   );
 }

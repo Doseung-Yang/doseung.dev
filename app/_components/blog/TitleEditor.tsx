@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 
 interface TitleEditorProps {
   value: string;
@@ -10,13 +10,6 @@ interface TitleEditorProps {
 export default function TitleEditor({ value, onChange }: TitleEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [value]);
-
   return (
     <div className="mb-8 mt-6">
       <textarea
@@ -24,8 +17,7 @@ export default function TitleEditor({ value, onChange }: TitleEditorProps) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder="제목을 입력하세요"
-        className="w-full text-4xl font-bold resize-none overflow-hidden border-none focus:outline-none focus:ring-0"
-        style={{ height: 'auto' }}
+        className="w-full text-4xl font-bold"
         rows={1}
       />
     </div>

@@ -81,7 +81,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="bg-background text-foreground">
         <ThemeProvider>
           <Header />
-          <main className="container mx-auto px-4 py-8">{children}</main>
+          <main>{children}</main>
           <Footer />
         </ThemeProvider>
         <script

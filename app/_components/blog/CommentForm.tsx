@@ -34,10 +34,10 @@ export default function CommentForm({
         cache: 'no-store',
       });
       if (!res.ok) throw new Error(await res.text().catch(() => ''));
-      onSubmitted?.(payload); // 낙관적 UI
+      onSubmitted?.(payload);
       setMsg('등록되었습니다.');
       setContent('');
-      router.refresh(); // 서버 캐시 무효화
+      router.refresh();
     } catch {
       setMsg('등록에 실패했습니다.');
     } finally {
