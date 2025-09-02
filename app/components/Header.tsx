@@ -12,9 +12,16 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <nav className="flex items-center space-x-6">
             <Link href="/blog" className="text-foreground hover:text-primary">
-              블로그
+              방명록
             </Link>
-            <div className="text-foreground hover:text-primary">포트폴리오</div>
+            <a
+              href="https://note.do-seung.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground hover:text-primary"
+            >
+              노트
+            </a>
             <Link href="/about" className="text-foreground hover:text-primary">
               소개
             </Link>
