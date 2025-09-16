@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import EditorHeader from '@/app/_components/blog/EditorHeader';
-import TitleEditor from '@/app/_components/blog/TitleEditor';
-import ContentEditor from '@/app/_components/blog/ContentEditor';
+import EditorHeader from '@/app/_components/post/EditorHeader';
+import TitleEditor from '@/app/_components/post/TitleEditor';
+import ContentEditor from '@/app/_components/post/ContentEditor';
 
 export default function EditPostPage({ params }: { params: { id: string } }) {
   const postId = params.id;
