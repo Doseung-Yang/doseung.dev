@@ -1,5 +1,5 @@
-import CommentsSection from '@/app/_components/blog/CommentsSection';
-import EditDeleteButtons from '@/app/_components/blog/DeleteButton';
+import CommentsSection from '@/app/_components/post/CommentsSection';
+import EditDeleteButtons from '@/app/_components/post/DeleteButton';
 import { getPost } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';

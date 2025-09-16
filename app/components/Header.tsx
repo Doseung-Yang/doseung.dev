@@ -12,6 +12,9 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <nav className="flex items-center space-x-6">
             <Link href="/blog" className="text-foreground hover:text-primary">
+              블로그
+            </Link>
+            <Link href="/post" className="text-foreground hover:text-primary">
               방명록
             </Link>
             <a

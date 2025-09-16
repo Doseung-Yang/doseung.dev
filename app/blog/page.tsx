@@ -1,65 +1,25 @@
-import { getPosts, Post } from '@/app/api/lib/get-post';
-import Link from 'next/link';
+import { getPosts } from '@/app/api/lib/notion';
+import BlogGallery from './_components/BlogGallery';
 
-function stripHtml(html: string | undefined): string {
-  if (!html) return '';
+export const revalidate = 60;
 
-  let result = html.replace(/<[^>]+>/g, ' ');
-
-  result = result
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#x2F;/g, '/');
-
-  return result.replace(/\s+/g, ' ').trim();
-}
-export const metadata = {
-  title: '양도승 | 기술 블로그',
-  description: '양도승 기술 블로그',
-  alternates: { canonical: '/blog' },
-};
-
-export default async function BlogPage() {
-  const posts: Post[] = await getPosts();
+export default async function BlogIndexPage() {
+  const { posts } = await getPosts({ pageSize: 20 });
 
   return (
-    <div className="max-w-3xl mx-auto p-6 text-foreground">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">블로그</h1>
-        <Link
-          href="/blog/edit"
-          className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium"
-        >
-          새 글 작성
-        </Link>
+    <section className="max-w-4xl mx-auto py-10 px-6 text-foreground">
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold mb-4">블로그</h1>
+        <p className="text-xl text-muted-foreground">개발과 일상에 대한 이야기를 기록합니다</p>
       </div>
 
-      <ul className="mt-4 space-y-4">
-        {posts && posts.length > 0 ? (
-          posts.map(post => (
-            <li
-              key={post.id}
-              className="border border-border bg-card text-card-foreground p-4 rounded-lg hover:shadow-md transition"
-            >
-              <Link href={`/blog/${post.id}`} className="block">
-                <h2 className="text-xl font-semibold">{post.title}</h2>
-                <p className="text-muted-foreground line-clamp-2 mt-2">{stripHtml(post.content)}</p>
-                {post.createdAt && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                  </p>
-                )}
-              </Link>
-            </li>
-          ))
-        ) : (
-          <li className="text-center text-muted-foreground p-4">게시글이 없습니다.</li>
-        )}
-      </ul>
-    </div>
+      <BlogGallery posts={posts} />
+
+      {posts.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground text-lg">아직 작성된 글이 없습니다.</p>
+        </div>
+      )}
+    </section>
   );
 }
