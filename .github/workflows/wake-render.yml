@@ -2,7 +2,7 @@ name: Wake Render
 
 on:
   schedule:
-    - cron: "*/15 * * * *"  # 15분마다
+    - cron: "*/15 * * * *"
   workflow_dispatch: {}
 
 jobs:
@@ -12,25 +12,29 @@ jobs:
     steps:
       - name: Ping Render (GET with retries)
         env:
-          WAKE_URL: ${{ secrets.WAKE_URL }}  # 예: https://blog-api-d21f.onrender.com (또는 /health)
+          WAKE_URL: ${{ secrets.WAKE_URL }}
         run: |
+          set -e
+
           if [ -z "$WAKE_URL" ]; then
             echo "WAKE_URL is not set"; exit 1;
           fi
 
-          # /health 엔드포인트도 시도 (이미 /health면 중복되지 않게 처리)
-          URLS="$WAKE_URL"
-          case "$WAKE_URL" in
-            */health) : ;;
-            *) URLS="$URLS
-$WAKE_URL/health" ;;
-          esac
+          URLS=("$WAKE_URL")
+          if [[ "$WAKE_URL" != */health ]]; then
+            URLS+=("$WAKE_URL/health")
+          fi
 
-          for url in $URLS; do
+          success=""
+          for url in "${URLS[@]}"; do
             echo "Try URL: $url"
             for i in 1 2 3; do
               echo "GET $url (attempt $i)"
-              curl -fsS -m 10 "$url" && success=1 && break || sleep 5
+              if curl -fsS -m 10 "$url"; then
+                success=1; break
+              else
+                sleep 5
+              fi
             done
             [ -n "$success" ] && break
           done
