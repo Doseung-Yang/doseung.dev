@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .replace(/<[^>]+>/g, ' ')
     .trim()
     .slice(0, 140);
-  const url = `https://do-seung.com/blog/${id}`;
+  const url = `https://do-seung.com/post/${id}`;
 
   return {
     title,
@@ -53,10 +53,11 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
   return (
     <article className="max-w-3xl mx-auto py-10 px-6 text-foreground">
       <header className="mb-8">
-        <EditDeleteButtons postId={id} />
+        {/* <EditDeleteButtons postId={id} /> */}
         <h1 className="text-4xl font-bold mt-6 mb-2">{post.title}</h1>
 
-        <div className="flex items-center text-muted-foreground text-sm">
+        <div className="flex items-center gap-3 text-muted-foreground text-sm">
+          {post.author && <span>by {post.author}</span>}
           {post.createdAt && (
             <time dateTime={post.createdAt}>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</time>
           )}
@@ -80,14 +81,14 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
         <h2 className="text-2xl font-bold mb-6">이런 글도 읽어보세요</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link
-            href="/blog/1"
+            href="/post/1"
             className="block p-4 border border-border bg-card text-card-foreground rounded-lg hover:shadow-md transition"
           >
             <h3 className="font-medium text-lg mb-1 hover:text-primary">첫 번째 추천 게시글</h3>
             <p className="text-muted-foreground text-sm">간략한 설명이 들어갑니다...</p>
           </Link>
           <Link
-            href="/blog/2"
+            href="/post/2"
             className="block p-4 border border-border bg-card text-card-foreground rounded-lg hover:shadow-md transition"
           >
             <h3 className="font-medium text-lg mb-1 hover:text-primary">두 번째 추천 게시글</h3>
@@ -104,9 +105,9 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
             headline: post.title,
             datePublished: post.createdAt,
             dateModified: post.updatedAt || post.createdAt,
-            author: [{ '@type': 'Person', name: 'Doseung Yang' }],
+            author: post.author ? [{ '@type': 'Person', name: post.author }] : undefined,
             publisher: { '@type': 'Organization', name: '개발자 도승' },
-            mainEntityOfPage: `https://do-seung.com/blog/${id}`,
+            mainEntityOfPage: `https://do-seung.com/post/${id}`,
           }).replace(/</g, '\\u003c'),
         }}
       />
@@ -116,8 +117,8 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
-            name: '블로그',
-            url: 'https://do-seung.com/blog',
+            name: '방명록',
+            url: 'https://do-seung.com/post',
             isPartOf: { '@type': 'WebSite', url: 'https://do-seung.com' },
           }).replace(/</g, '\\u003c'),
         }}

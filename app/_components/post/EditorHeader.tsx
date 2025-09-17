@@ -26,7 +26,7 @@ export default function EditorHeader({
     <header className="sticky top-0 z-10 ">
       <div className="max-w-screen-2xl mx-auto px-4 flex items-center justify-between h-16">
         <div className="flex items-center space-x-4">
-          <button onClick={() => router.push('/blog')} className="text-foreground hover:text-primary">
+          <button onClick={() => router.push('/post')} className="text-foreground hover:text-primary">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"

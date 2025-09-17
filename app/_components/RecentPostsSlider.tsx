@@ -62,7 +62,7 @@ export default function RecentPostsSlider({ posts }: RecentPostsSliderProps) {
 
       <div className="relative">
         <div className="relative h-[200px] sm:h-[240px] overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border border-slate-200 dark:border-slate-700">
-          <Link href={`/blog/${posts[currentIndex].id}`}>
+          <Link href={`/post/${posts[currentIndex].id}`}>
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}

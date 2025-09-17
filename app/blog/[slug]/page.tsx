@@ -1,4 +1,5 @@
-import { getPostBySlug, getPostContentHtml, getPostUrl } from '@/app/api/lib/notion';
+import { getPostBySlug, getPostContentHtml, getPostUrl, getPosts } from '@/app/api/lib/notion';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -31,11 +32,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) notFound();
-  const content = await getPostContentHtml(post.id);
+  const contentPromise = getPostContentHtml(post.id);
 
   return (
     <article className="max-w-4xl mx-auto py-10 px-6 text-foreground">
-      {/* 뒤로가기 버튼 */}
       <div className="mb-6">
         <Link
           href="/blog"
@@ -48,7 +48,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </Link>
       </div>
 
-      {/* 헤더 */}
       <header className="mb-8">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{post.title}</h1>
 
@@ -95,11 +94,46 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </div>
       </header>
 
-      {/* 본문 */}
-      <div
-        className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
-        dangerouslySetInnerHTML={{ __html: content.html }}
-      />
+      <Suspense fallback={<div className="text-muted-foreground">콘텐츠를 불러오는 중...</div>}>
+        <ArticleBody contentPromise={contentPromise} />
+      </Suspense>
+
+      <div className="mt-16 pt-8 border-t border-border">
+        <h2 className="text-2xl font-bold mb-6">의견 남기기</h2>
+        <div className="bg-secondary p-6 rounded-lg text-secondary-foreground">
+          <p className="mb-4">이 글에 대한 의견이나 질문이 있으시다면 언제든 연락주세요!</p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a
+              href="/post"
+              className="inline-flex items-center px-4 py-2 border border-border rounded-lg hover:bg-muted transition"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              방명록에 글 남기기
+            </a>
+          </div>
+        </div>
+      </div>
     </article>
   );
+}
+
+async function ArticleBody({ contentPromise }: { contentPromise: Promise<{ md: string; html: string }> }) {
+  const content = await contentPromise;
+  return (
+    <div
+      className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
+      dangerouslySetInnerHTML={{ __html: content.html }}
+    />
+  );
+}
+export async function generateStaticParams() {
+  const { posts } = await getPosts({ pageSize: 50 });
+  return posts.map(p => ({ slug: p.slug }));
 }

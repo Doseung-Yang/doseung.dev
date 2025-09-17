@@ -1,6 +1,7 @@
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 import { marked } from 'marked';
+import { unstable_cache } from 'next/cache';
 
 export type NotionPost = {
   id: string;
@@ -57,11 +58,7 @@ function mapPageToPost(page: any): NotionPost {
   return { id: page.id, title, slug, description, tags, date, published, coverUrl: undefined };
 }
 
-export async function getPosts(options?: {
-  pageSize?: number;
-  startCursor?: string | null;
-  includeUnpublished?: boolean;
-}) {
+async function _getPosts(options?: { pageSize?: number; startCursor?: string | null; includeUnpublished?: boolean }) {
   if (!NOTION_DATABASE_ID) throw new Error('NOTION_DATABASE_ID is not set');
   const { pageSize = 20, startCursor = null, includeUnpublished = false } = options || {};
   // 기본 블로그 목록 20개, 추후 인피니티 스크롤 구현 예정입니다.
@@ -80,11 +77,18 @@ export async function getPosts(options?: {
   return { posts, hasMore: resp.has_more, nextCursor: resp.next_cursor };
 }
 
-export async function getPostBySlug(slug: string, options?: { includeUnpublished?: boolean }) {
+async function _getPostBySlug(slug: string, options?: { includeUnpublished?: boolean }) {
   if (!NOTION_DATABASE_ID) throw new Error('NOTION_DATABASE_ID is not set');
   const { includeUnpublished = false } = options || {};
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+  if (isUuid) {
+    try {
+      const page = await notion.pages.retrieve({ page_id: slug });
+      return mapPageToPost(page);
+    } catch (e) {}
+  }
   // 최대 100개 포스터 가져오는 것으로 세팅, 추후 인피니티 스크롤로 대체 예정입니다.
-  const { posts } = await getPosts({ pageSize: 100, includeUnpublished });
+  const { posts } = await _getPosts({ pageSize: 100, includeUnpublished });
   const post = posts.find(p => p.slug === slug);
 
   if (!post) return null;
@@ -101,7 +105,7 @@ export async function getPostBySlug(slug: string, options?: { includeUnpublished
   return mapPageToPost(page);
 }
 
-export async function getPostContentHtml(pageId: string) {
+async function _getPostContentHtml(pageId: string) {
   const mdBlocks = await n2m.pageToMarkdown(pageId);
   const mdString = n2m.toMarkdownString(mdBlocks).parent ?? '';
   const html = marked.parse(mdString) as string;
@@ -110,4 +114,25 @@ export async function getPostContentHtml(pageId: string) {
 
 export function getPostUrl(slug: string) {
   return `/blog/${slug}`;
+}
+export async function getPosts(options?: {
+  pageSize?: number;
+  startCursor?: string | null;
+  includeUnpublished?: boolean;
+}) {
+  const key = ['getPosts', process.env.NOTION_DATABASE_ID ?? 'no-db', JSON.stringify(options ?? {})];
+  const cached = unstable_cache(() => _getPosts(options), key, { revalidate: 300 });
+  return cached();
+}
+
+export async function getPostBySlug(slug: string, options?: { includeUnpublished?: boolean }) {
+  const key = ['getPostBySlug', process.env.NOTION_DATABASE_ID ?? 'no-db', slug, JSON.stringify(options ?? {})];
+  const cached = unstable_cache(() => _getPostBySlug(slug, options), key, { revalidate: 300 });
+  return cached();
+}
+
+export async function getPostContentHtml(pageId: string) {
+  const key = ['getPostContentHtml', pageId];
+  const cached = unstable_cache(() => _getPostContentHtml(pageId), key, { revalidate: 3600 });
+  return cached();
 }

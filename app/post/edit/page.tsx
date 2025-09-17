@@ -10,6 +10,7 @@ export default function EditPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [savedStatus, setSavedStatus] = useState('');
@@ -41,6 +42,7 @@ export default function EditPage() {
         body: JSON.stringify({
           title,
           content,
+          author,
           published: publish,
         }),
       });
@@ -52,7 +54,7 @@ export default function EditPage() {
       const data = await response.json();
 
       if (publish) {
-        router.push(`/blog/${data.id}`);
+        router.push(`/post/${data.id}`);
       } else {
         setSavedStatus('저장됨');
         setTimeout(() => setSavedStatus(''), 5000);
@@ -77,6 +79,12 @@ export default function EditPage() {
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <label className="block text-sm font-medium mb-2">작성자(닉네임)</label>
+        <input
+          value={author}
+          onChange={e => setAuthor(e.target.value)}
+          className="w-fit mb-6 px-3 py-2 rounded-md border border-border bg-background text-foreground"
+        />
         <TitleEditor value={title} onChange={setTitle} />
         <div className="border-b border-border mb-6"></div>
         <ContentEditor value={content} onChange={setContent} />

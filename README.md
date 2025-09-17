@@ -44,7 +44,8 @@ pnpm dev
 
 - `app/` 페이지 라우팅(App Router)
 - `app/_components/` 재사용 UI 컴포넌트
-- `app/blog/` 블로그 관련 페이지(목록/상세/편집)
+- `app/blog/` 블로그
+- `app/post/` 방명록
 - `app/api/` API 라우트
 - `app/util/` 테마 등 유틸
 
