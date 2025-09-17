@@ -121,7 +121,10 @@ export async function getPosts(options?: {
   includeUnpublished?: boolean;
 }) {
   const key = ['getPosts', process.env.NOTION_DATABASE_ID ?? 'no-db', JSON.stringify(options ?? {})];
-  const cached = unstable_cache(() => _getPosts(options), key, { revalidate: 300 });
+  const cached = unstable_cache(() => _getPosts(options), key, {
+    revalidate: 60,
+    tags: ['notion-posts'],
+  });
   return cached();
 }
 
