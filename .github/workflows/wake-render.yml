@@ -1,0 +1,42 @@
+name: Wake Render
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"  # 15분마다
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping Render (GET with retries)
+        env:
+          WAKE_URL: ${{ secrets.WAKE_URL }}  # 예: https://blog-api-d21f.onrender.com (또는 /health)
+        run: |
+          if [ -z "$WAKE_URL" ]; then
+            echo "WAKE_URL is not set"; exit 1;
+          fi
+
+          # /health 엔드포인트도 시도 (이미 /health면 중복되지 않게 처리)
+          URLS="$WAKE_URL"
+          case "$WAKE_URL" in
+            */health) : ;;
+            *) URLS="$URLS
+$WAKE_URL/health" ;;
+          esac
+
+          for url in $URLS; do
+            echo "Try URL: $url"
+            for i in 1 2 3; do
+              echo "GET $url (attempt $i)"
+              curl -fsS -m 10 "$url" && success=1 && break || sleep 5
+            done
+            [ -n "$success" ] && break
+          done
+
+          if [ -z "$success" ]; then
+            echo "Wake failed (all attempts)"; exit 1;
+          fi
+
+          echo "Wake succeeded"
