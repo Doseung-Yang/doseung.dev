@@ -12,6 +12,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [author, setAuthor] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [savedStatus, setSavedStatus] = useState('');
@@ -29,6 +30,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         const post = await response.json();
 
         setTitle(post.title || '');
+        setAuthor(post.author || '');
 
         if (post.content) {
           try {
@@ -43,7 +45,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       } catch (error) {
         console.error('Error fetching post:', error);
         alert('게시글을 불러오는데 실패했습니다.');
-        router.push('/blog');
+        router.push('/post');
       }
     }
 
@@ -77,6 +79,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         body: JSON.stringify({
           title,
           content: processedContent,
+          author,
           published: publish,
         }),
       });
@@ -88,7 +91,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       const data = await response.json();
 
       if (publish) {
-        router.push(`/blog/${data.id || postId}`);
+        router.push(`/post/${data.id || postId}`);
       } else {
         setSavedStatus('저장됨');
         setTimeout(() => setSavedStatus(''), 5000);
@@ -125,6 +128,12 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <label className="block text-sm font-medium mb-2">작성자(닉네임)</label>
+        <input
+          value={author}
+          onChange={e => setAuthor(e.target.value)}
+          className="w-full mb-6 px-3 py-2 rounded-md border border-border bg-background text-foreground"
+        />
         <TitleEditor value={title} onChange={setTitle} />
         <div className="border-b border-border mb-6"></div>
         <ContentEditor value={content} onChange={setContent} />

@@ -18,9 +18,9 @@ function stripHtml(html: string | undefined): string {
   return result.replace(/\s+/g, ' ').trim();
 }
 export const metadata = {
-  title: '양도승 | 기술 블로그',
-  description: '양도승 기술 블로그',
-  alternates: { canonical: '/blog' },
+  title: '양도승 | 기술 블로그 방명록',
+  description: '양도승 기술 블로그 방명록',
+  alternates: { canonical: '/post' },
 };
 
 export default async function BlogPage() {
@@ -29,9 +29,9 @@ export default async function BlogPage() {
   return (
     <div className="max-w-3xl mx-auto p-6 text-foreground">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">블로그</h1>
+        <h1 className="text-3xl font-bold">방명록</h1>
         <Link
-          href="/blog/edit"
+          href="/post/edit"
           className="bg-primary hover:opacity-90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium"
         >
           새 글 작성
@@ -45,8 +45,9 @@ export default async function BlogPage() {
               key={post.id}
               className="border border-border bg-card text-card-foreground p-4 rounded-lg hover:shadow-md transition"
             >
-              <Link href={`/blog/${post.id}`} className="block">
+              <Link href={`/post/${post.id}`} className="block">
                 <h2 className="text-xl font-semibold">{post.title}</h2>
+                {post.author && <p className="mt-1 text-sm text-muted-foreground">by {post.author}</p>}
                 <p className="text-muted-foreground line-clamp-2 mt-2">{stripHtml(post.content)}</p>
                 {post.createdAt && (
                   <p className="text-sm text-muted-foreground mt-2">

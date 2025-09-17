@@ -13,7 +13,7 @@ export default function EditDeleteButtons({ postId }: EditDeleteButtonsProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleEdit = () => {
-    router.push(`/blog/edit/${postId}`);
+    router.push(`/post/edit/${postId}`);
   };
 
   const handleDeleteClick = () => {
@@ -28,7 +28,7 @@ export default function EditDeleteButtons({ postId }: EditDeleteButtonsProps) {
       });
 
       if (response.ok) {
-        router.push('/blog');
+        router.push('/post');
         router.refresh();
       } else {
         throw new Error('삭제 실패');
