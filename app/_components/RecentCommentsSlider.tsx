@@ -65,9 +65,9 @@ export default function RecentCommentsSlider({ comments }: RecentCommentsSliderP
 
                 <div className="mb-3">
                   <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3 mb-2">
-                    작성자 : {comments[currentIndex].content}
+                    작성자 : {comments[currentIndex].author || '익명'}
                   </p>
-                  <p className="text-xs">내용 : {comments[currentIndex].author || '익명'}</p>
+                  <p className="text-xs">내용 : {comments[currentIndex].content}</p>
                 </div>
               </div>
 
