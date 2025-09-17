@@ -1,4 +1,5 @@
-import { getPostBySlug, getPostContentHtml, getPostUrl } from '@/app/api/lib/notion';
+import { getPostBySlug, getPostContentHtml, getPostUrl, getPosts } from '@/app/api/lib/notion';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 
@@ -31,11 +32,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) notFound();
-  const content = await getPostContentHtml(post.id);
+  const contentPromise = getPostContentHtml(post.id);
 
   return (
     <article className="max-w-4xl mx-auto py-10 px-6 text-foreground">
-      {/* 뒤로가기 버튼 */}
       <div className="mb-6">
         <Link
           href="/blog"
@@ -48,7 +48,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </Link>
       </div>
 
-      {/* 헤더 */}
       <header className="mb-8">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{post.title}</h1>
 
@@ -95,11 +94,23 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </div>
       </header>
 
-      {/* 본문 */}
-      <div
-        className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
-        dangerouslySetInnerHTML={{ __html: content.html }}
-      />
+      <Suspense fallback={<div className="text-muted-foreground">콘텐츠를 불러오는 중...</div>}>
+        <ArticleBody contentPromise={contentPromise} />
+      </Suspense>
     </article>
   );
+}
+
+async function ArticleBody({ contentPromise }: { contentPromise: Promise<{ md: string; html: string }> }) {
+  const content = await contentPromise;
+  return (
+    <div
+      className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
+      dangerouslySetInnerHTML={{ __html: content.html }}
+    />
+  );
+}
+export async function generateStaticParams() {
+  const { posts } = await getPosts({ pageSize: 50 });
+  return posts.map(p => ({ slug: p.slug }));
 }
