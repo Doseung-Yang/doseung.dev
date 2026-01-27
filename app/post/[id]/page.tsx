@@ -1,12 +1,11 @@
+import { Suspense } from 'react';
 import CommentsSection from '@/app/_components/post/CommentsSection';
-import EditDeleteButtons from '@/app/_components/post/DeleteButton';
-import { getPost } from '@/app/api/lib/get-post';
+import { getPost, getCommentsByPostId } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 type PageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,10 +40,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     },
   };
 }
-export default async function BlogPostPage({ params, searchParams: _searchParams }: PageProps) {
+export default async function BlogPostPage({ params }: PageProps) {
   const resolvedParams = await params;
   const id = resolvedParams.id;
-  const post = await getPost(id);
+
+  const [post, comments] = await Promise.all([getPost(id), getCommentsByPostId(id)]);
 
   if (!post) {
     notFound();
@@ -53,7 +53,6 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
   return (
     <article className="max-w-3xl mx-auto py-10 px-6 text-foreground">
       <header className="mb-8">
-        {/* <EditDeleteButtons postId={id} /> */}
         <h1 className="text-4xl font-bold mt-6 mb-2">{post.title}</h1>
 
         <div className="flex items-center gap-3 text-muted-foreground text-sm">
@@ -75,7 +74,9 @@ export default async function BlogPostPage({ params, searchParams: _searchParams
         )}
       </div>
 
-      <CommentsSection postId={id} />
+      <Suspense fallback={<div className="animate-pulse h-32 bg-slate-200 dark:bg-slate-700 rounded-lg mt-10" />}>
+        <CommentsSection postId={id} initialComments={comments} />
+      </Suspense>
 
       <section className="mt-16 pt-8 border-t border-border">
         <h2 className="text-2xl font-bold mb-6">이런 글도 읽어보세요</h2>

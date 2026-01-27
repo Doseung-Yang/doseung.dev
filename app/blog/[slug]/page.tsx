@@ -1,7 +1,7 @@
 import { getPostBySlug, getPostContentHtml, getPostUrl, getPosts } from '@/app/api/lib/notion';
-import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ChevronLeft, Calendar, Tag, Chat } from '@/components/icons';
 
 export const revalidate = 60;
 
@@ -30,9 +30,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  
+  // 병렬로 메타데이터와 콘텐츠 로드
   const post = await getPostBySlug(slug);
   if (!post) notFound();
-  const contentPromise = getPostContentHtml(post.id);
+  
+  // 콘텐츠도 서버에서 완전히 로드 (Suspense 제거로 초기 로딩 개선)
+  const content = await getPostContentHtml(post.id);
 
   return (
     <article className="max-w-4xl mx-auto py-10 px-6 text-foreground">
@@ -41,9 +45,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           href="/blog"
           className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ChevronLeft className="w-4 h-4 mr-2" />
           블로그 목록으로 돌아가기
         </Link>
       </div>
@@ -56,14 +58,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {post.date && (
             <time className="flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+              <Calendar className="w-4 h-4 mr-1" />
               {new Date(post.date).toLocaleDateString('ko-KR', {
                 year: 'numeric',
                 month: 'long',
@@ -74,14 +69,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
           {post.tags && post.tags.length > 0 && (
             <div className="flex items-center flex-wrap gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                />
-              </svg>
+              <Tag className="w-4 h-4" />
               <div className="flex flex-wrap gap-1">
                 {post.tags.map((tag, index) => (
                   <span key={index} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">
@@ -94,9 +82,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         </div>
       </header>
 
-      <Suspense fallback={<div className="text-muted-foreground">콘텐츠를 불러오는 중...</div>}>
-        <ArticleBody contentPromise={contentPromise} />
-      </Suspense>
+      <div
+        className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
+        dangerouslySetInnerHTML={{ __html: content.html }}
+      />
 
       <div className="mt-16 pt-8 border-t border-border">
         <h2 className="text-2xl font-bold mb-6">의견 남기기</h2>
@@ -107,14 +96,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
               href="/post"
               className="inline-flex items-center px-4 py-2 border border-border rounded-lg hover:bg-muted transition"
             >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
+              <Chat className="w-4 h-4 mr-2" />
               방명록에 글 남기기
             </a>
           </div>
@@ -124,15 +106,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   );
 }
 
-async function ArticleBody({ contentPromise }: { contentPromise: Promise<{ md: string; html: string }> }) {
-  const content = await contentPromise;
-  return (
-    <div
-      className="prose prose-lg max-w-none dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:text-foreground"
-      dangerouslySetInnerHTML={{ __html: content.html }}
-    />
-  );
-}
 export async function generateStaticParams() {
   const { posts } = await getPosts({ pageSize: 50 });
   return posts.map(p => ({ slug: p.slug }));

@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 export interface Post {
   id: string;
   title: string;
@@ -18,7 +20,7 @@ export interface Comment {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function getPosts(): Promise<Post[]> {
+export const getPosts = cache(async (): Promise<Post[]> => {
   try {
     const response = await fetch(`${API_URL}/posts`, {
       next: { revalidate: 60 },
@@ -37,9 +39,9 @@ export async function getPosts(): Promise<Post[]> {
     console.error('Error fetching posts:', error);
     return [];
   }
-}
+});
 
-export async function getPost(id: string): Promise<Post | null> {
+export const getPost = cache(async (id: string): Promise<Post | null> => {
   try {
     const response = await fetch(`${API_URL}/posts/${id}`, {
       next: { revalidate: 60 },
@@ -58,9 +60,9 @@ export async function getPost(id: string): Promise<Post | null> {
     console.error(`Error fetching post ${id}:`, error);
     return null;
   }
-}
+});
 
-export async function getRecentPosts(limit: number = 3): Promise<Post[]> {
+export const getRecentPosts = cache(async (limit: number = 3): Promise<Post[]> => {
   try {
     const posts = await getPosts();
     return posts
@@ -71,15 +73,55 @@ export async function getRecentPosts(limit: number = 3): Promise<Post[]> {
     console.error('Error fetching recent posts:', error);
     return [];
   }
-}
+});
 
-export async function getRecentComments(limit: number = 5): Promise<Comment[]> {
+export const getCommentsByPostId = cache(async (postId: string): Promise<Comment[]> => {
   try {
-    const base = process.env.NEXT_PUBLIC_API_URL!;
-    const url = `${base}/comments`;
-    console.log('Fetching comments from:', url);
+    const urls = [
+      `${API_URL}/posts/${postId}/comments`,
+      `${API_URL}/comments?postId=${postId}`,
+    ];
 
-    const response = await fetch(url, { cache: 'no-store' });
+    for (const url of urls) {
+      try {
+        const response = await fetch(url, {
+          next: { revalidate: 30 },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) continue;
+
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          return data.sort(
+            (a: Comment, b: Comment) =>
+              new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          );
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return [];
+  } catch (error) {
+    console.error(`Error fetching comments for post ${postId}:`, error);
+    return [];
+  }
+});
+
+export const getRecentComments = cache(async (limit: number = 5): Promise<Comment[]> => {
+  try {
+    const url = `${API_URL}/comments`;
+
+    const response = await fetch(url, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!response.ok) {
       console.error('Failed to fetch comments:', await response.text());
@@ -87,19 +129,13 @@ export async function getRecentComments(limit: number = 5): Promise<Comment[]> {
     }
 
     const comments = await response.json();
-    console.log('Raw comments from API:', comments);
 
-    const filteredComments = comments
+    return comments
       .filter((comment: Comment) => comment.createdAt)
       .sort((a: Comment, b: Comment) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
       .slice(0, limit);
-
-    console.log('Filtered comments:', filteredComments);
-    console.log('First comment postId:', filteredComments[0]?.postId);
-
-    return filteredComments;
   } catch (error) {
     console.error('Error fetching recent comments:', error);
     return [];
   }
-}
+});
