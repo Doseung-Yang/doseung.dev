@@ -14,34 +14,69 @@ export type NotionPost = {
   coverUrl?: string;
 };
 
+type NotionPage = {
+  id: string;
+  properties: Record<string, NotionProperty>;
+  created_time: string;
+};
+
+type NotionProperty =
+  | { type: 'title'; title: Array<{ plain_text: string }> }
+  | { type: 'rich_text'; rich_text: Array<{ plain_text: string }> }
+  | { type: 'multi_select'; multi_select: Array<{ name: string }> }
+  | { type: 'date'; date: { start: string } | null }
+  | { type: 'checkbox'; checkbox: boolean };
+
+type NotionSort = {
+  timestamp: 'created_time' | 'last_edited_time';
+  direction: 'ascending' | 'descending';
+};
+
+type NotionFilter = {
+  property: string;
+  rich_text: { equals: string };
+};
+
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
 const notion = new Client({ auth: NOTION_TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-function getProperty<T = any>(page: any, name: string): T | undefined {
-  return page?.properties?.[name];
+function getProperty<T extends NotionProperty = NotionProperty>(
+  page: NotionPage,
+  name: string
+): T | undefined {
+  const property = page.properties[name];
+  return property as T | undefined;
 }
 
-function getRichText(prop: any): string | undefined {
-  const arr = prop?.rich_text ?? prop?.title;
-  if (!Array.isArray(arr) || arr.length === 0) return undefined;
-  return (
-    arr
-      .map((t: any) => t?.plain_text ?? '')
-      .join('')
-      .trim() || undefined
-  );
+function getRichText(prop: NotionProperty | undefined): string | undefined {
+  if (!prop) return undefined;
+  
+  if (prop.type === 'rich_text') {
+    const arr = prop.rich_text;
+    if (!Array.isArray(arr) || arr.length === 0) return undefined;
+    return arr.map(t => t.plain_text).join('').trim() || undefined;
+  }
+  
+  if (prop.type === 'title') {
+    const arr = prop.title;
+    if (!Array.isArray(arr) || arr.length === 0) return undefined;
+    return arr.map(t => t.plain_text).join('').trim() || undefined;
+  }
+  
+  return undefined;
 }
 
-function getMultiSelect(prop: any): string[] {
-  const arr = prop?.multi_select;
+function getMultiSelect(prop: NotionProperty | undefined): string[] {
+  if (!prop || prop.type !== 'multi_select') return [];
+  const arr = prop.multi_select;
   if (!Array.isArray(arr)) return [];
-  return arr.map((t: any) => t?.name).filter(Boolean);
+  return arr.map(t => t.name).filter(Boolean);
 }
 
-function mapPageToPost(page: any): NotionPost {
+function mapPageToPost(page: NotionPage): NotionPost {
   const titleProp = getProperty(page, 'Title') ?? getProperty(page, '이름');
   const slugProp = getProperty(page, 'Slug') ?? getProperty(page, '슬러그');
   const descProp = getProperty(page, 'Description') ?? getProperty(page, '설명');
@@ -53,56 +88,81 @@ function mapPageToPost(page: any): NotionPost {
   const slug = getRichText(slugProp) ?? page.id;
   const description = getRichText(descProp);
   const tags = getMultiSelect(tagsProp);
-  const date: string | undefined = dateProp?.date?.start ?? page?.created_time;
-  const published: boolean = Boolean(pubProp?.checkbox);
+  
+  let date: string | undefined = page.created_time;
+  if (dateProp?.type === 'date' && dateProp.date?.start) {
+    date = dateProp.date.start;
+  }
+  
+  let published = false;
+  if (pubProp?.type === 'checkbox') {
+    published = pubProp.checkbox;
+  }
+  
   return { id: page.id, title, slug, description, tags, date, published, coverUrl: undefined };
 }
 
-async function _getPosts(options?: { pageSize?: number; startCursor?: string | null; includeUnpublished?: boolean }) {
+async function _getPosts(options?: { pageSize?: number; startCursor?: string | null }) {
   if (!NOTION_DATABASE_ID) throw new Error('NOTION_DATABASE_ID is not set');
-  const { pageSize = 20, startCursor = null, includeUnpublished = false } = options || {};
-  // 기본 블로그 목록 20개, 추후 인피니티 스크롤 구현 예정입니다.
-  const filter = undefined;
+  const { pageSize = 20, startCursor = null } = options || {};
+
+  const sorts: NotionSort[] = [
+    { timestamp: 'created_time', direction: 'descending' }
+  ];
 
   const resp = await notion.databases.query({
     database_id: NOTION_DATABASE_ID,
-    filter,
-    sorts: [{ timestamp: 'created_time', direction: 'descending' }] as any,
+    filter: undefined,
+    sorts: sorts as never,
     page_size: pageSize,
     start_cursor: startCursor ?? undefined,
   });
 
-  const posts = resp.results.map(mapPageToPost);
+  const posts = resp.results
+    .filter((result) => typeof result === 'object' && result !== null && 'properties' in result)
+    .map((page) => mapPageToPost(page as NotionPage));
 
   return { posts, hasMore: resp.has_more, nextCursor: resp.next_cursor };
 }
 
-async function _getPostBySlug(slug: string, options?: { includeUnpublished?: boolean }) {
+async function _getPostBySlug(slug: string) {
   if (!NOTION_DATABASE_ID) throw new Error('NOTION_DATABASE_ID is not set');
-  const { includeUnpublished = false } = options || {};
+  
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
   if (isUuid) {
     try {
       const page = await notion.pages.retrieve({ page_id: slug });
-      return mapPageToPost(page);
-    } catch (e) {}
+      if (typeof page === 'object' && page !== null && 'properties' in page) {
+        return mapPageToPost(page as NotionPage);
+      }
+    } catch {
+    }
   }
-  // 최대 100개 포스터 가져오는 것으로 세팅, 추후 인피니티 스크롤로 대체 예정입니다.
-  const { posts } = await _getPosts({ pageSize: 100, includeUnpublished });
-  const post = posts.find(p => p.slug === slug);
-
-  if (!post) return null;
-
-  const resp = await notion.databases.query({
-    database_id: NOTION_DATABASE_ID,
-    filter: { property: '이름', title: { contains: post.title } } as any,
-    page_size: 1,
-  });
-
-  const page = resp.results[0];
-  if (!page) return post;
-
-  return mapPageToPost(page);
+  const slugPropertyNames = ['Slug', '슬러그'];
+  
+  for (const propertyName of slugPropertyNames) {
+    try {
+      const filter: NotionFilter = {
+        property: propertyName,
+        rich_text: { equals: slug },
+      };
+      
+      const resp = await notion.databases.query({
+        database_id: NOTION_DATABASE_ID,
+        filter: filter as never,
+        page_size: 1,
+      });
+      
+      const result = resp.results[0];
+      if (result && typeof result === 'object' && 'properties' in result) {
+        return mapPageToPost(result as NotionPage);
+      }
+    } catch {
+      continue;
+    }
+  }
+  
+  return null;
 }
 
 async function _getPostContentHtml(pageId: string) {
@@ -118,7 +178,6 @@ export function getPostUrl(slug: string) {
 export async function getPosts(options?: {
   pageSize?: number;
   startCursor?: string | null;
-  includeUnpublished?: boolean;
 }) {
   const key = ['getPosts', process.env.NOTION_DATABASE_ID ?? 'no-db', JSON.stringify(options ?? {})];
   const cached = unstable_cache(() => _getPosts(options), key, {
@@ -128,14 +187,19 @@ export async function getPosts(options?: {
   return cached();
 }
 
-export async function getPostBySlug(slug: string, options?: { includeUnpublished?: boolean }) {
-  const key = ['getPostBySlug', process.env.NOTION_DATABASE_ID ?? 'no-db', slug, JSON.stringify(options ?? {})];
-  const cached = unstable_cache(() => _getPostBySlug(slug, options), key, { revalidate: 300 });
+export async function getPostBySlug(slug: string) {
+  const key = ['getPostBySlug', process.env.NOTION_DATABASE_ID ?? 'no-db', slug];
+  const cached = unstable_cache(() => _getPostBySlug(slug), key, { revalidate: 300 });
   return cached();
 }
 
 export async function getPostContentHtml(pageId: string) {
   const key = ['getPostContentHtml', pageId];
-  const cached = unstable_cache(() => _getPostContentHtml(pageId), key, { revalidate: 3600 });
+  const cached = unstable_cache(() => _getPostContentHtml(pageId), key, { revalidate: 60 });
   return cached();
+}
+export async function getPostContentHtmlBySlug(slug: string) {
+  const post = await getPostBySlug(slug);
+  if (!post) return null;
+  return getPostContentHtml(post.id);
 }

@@ -53,7 +53,6 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <article className="max-w-3xl mx-auto py-10 px-6 text-foreground">
       <header className="mb-8">
-        {/* <EditDeleteButtons postId={id} /> */}
         <h1 className="text-4xl font-bold mt-6 mb-2">{post.title}</h1>
 
         <div className="flex items-center gap-3 text-muted-foreground text-sm">
