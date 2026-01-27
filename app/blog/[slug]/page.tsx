@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { getPostBySlug, getPostContentHtml, getPostUrl, getPosts } from '@/app/api/lib/notion';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -5,13 +6,36 @@ import { ChevronLeft, Calendar, Tag, Chat } from '@/components/icons';
 
 export const revalidate = 60;
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+const MAX_DESCRIPTION_LENGTH = 160;
+const SITE_URL = 'https://do-seung.com';
+
+const normalizeText = (value: string) =>
+  value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const truncateText = (value: string, maxLength: number) => {
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+};
+
+const createDescriptionFromHtml = (html: string) => {
+  const normalized = normalizeText(html);
+  return truncateText(normalized, MAX_DESCRIPTION_LENGTH);
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
   const title = post.title;
-  const description = post.description ?? '';
-  const url = `https://do-seung.com${getPostUrl(post.slug)}`;
+  let description = post.description?.trim() ?? '';
+  if (!description) {
+    const content = await getPostContentHtml(post.id);
+    description = createDescriptionFromHtml(content.html);
+  }
+  const url = `${SITE_URL}${getPostUrl(post.slug)}`;
   return {
     title,
     description,
@@ -25,21 +49,43 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       locale: 'ko_KR',
     },
     twitter: { card: 'summary_large_image', title, description, images: ['/DS.png'] },
-  } as any;
+  };
 }
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
-  // 병렬로 메타데이터와 콘텐츠 로드
   const post = await getPostBySlug(slug);
   if (!post) notFound();
   
-  // 콘텐츠도 서버에서 완전히 로드 (Suspense 제거로 초기 로딩 개선)
   const content = await getPostContentHtml(post.id);
+  const description = post.description?.trim() || createDescriptionFromHtml(content.html);
+  const postUrl = `${SITE_URL}${getPostUrl(post.slug)}`;
+  const publishedDate = post.date ? new Date(post.date).toISOString() : undefined;
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description,
+    image: [`${SITE_URL}/DS.png`],
+    author: [{ '@type': 'Person', name: '양도승', url: SITE_URL }],
+    publisher: {
+      '@type': 'Organization',
+      name: '개발자 도승',
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/DS.png` },
+    },
+    datePublished: publishedDate,
+    dateModified: publishedDate,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
+  };
 
   return (
     <article className="max-w-4xl mx-auto py-10 px-6 text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleJsonLd).replace(/</g, '\\u003c'),
+        }}
+      />
       <div className="mb-6">
         <Link
           href="/blog"
@@ -92,13 +138,13 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
         <div className="bg-secondary p-6 rounded-lg text-secondary-foreground">
           <p className="mb-4">이 글에 대한 의견이나 질문이 있으시다면 언제든 연락주세요!</p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <a
+            <Link
               href="/post"
               className="inline-flex items-center px-4 py-2 border border-border rounded-lg hover:bg-muted transition"
             >
               <Chat className="w-4 h-4 mr-2" />
               방명록에 글 남기기
-            </a>
+            </Link>
           </div>
         </div>
       </div>

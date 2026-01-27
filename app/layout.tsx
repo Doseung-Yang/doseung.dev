@@ -7,32 +7,6 @@ import { ThemeProvider } from './util/theme-provider';
 export const metadata: Metadata = {
   title: '개발자 도승',
   description: '개발자 양도승 기술 블로그',
-  keywords: [
-    '양도승',
-    '도승',
-    'didehtmd',
-    'ehtmd',
-    '개발자 도승',
-    '웹 개발자',
-    '프론트엔드',
-    '풀스택 개발자',
-    'react',
-    'next.js',
-    'JavaScript',
-    'TypeScript',
-    '포트폴리오',
-    '기술 블로그',
-    '개발 블로그',
-    'nest',
-    'next',
-    '조코딩',
-    '인프런',
-    '노마드코더',
-    '클론 코딩',
-    '크롤링',
-    '크롤러',
-    '강의',
-  ],
   authors: [{ name: '양도승', url: 'https://do-seung.com' }],
   creator: '양도승',
   publisher: '양도승',
@@ -84,22 +58,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <main>{children}</main>
           <Footer />
         </ThemeProvider>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebSite',
-              name: '양도승',
-              url: 'https://do-seung.com',
-              potentialAction: {
-                '@type': 'SearchAction',
-                target: 'https://do-seung.com/search?q={search_term_string}',
-                'query-input': 'required name=search_term_string',
-              },
-            }).replace(/</g, '\\u003c'),
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -1,5 +1,27 @@
+import type { Metadata } from 'next';
 import { getPosts } from '@/app/api/lib/notion';
 import BlogGallery from './_components/BlogGallery';
+
+export const metadata: Metadata = {
+  title: '블로그 | 개발자 도승',
+  description: '개발과 일상에서 얻은 경험과 배움을 정리한 글을 공유합니다.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    title: '블로그 | 개발자 도승',
+    description: '개발과 일상에서 얻은 경험과 배움을 정리한 글을 공유합니다.',
+    url: '/blog',
+    siteName: '개발자 도승',
+    images: ['/DS.png'],
+    type: 'website',
+    locale: 'ko_KR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '블로그 | 개발자 도승',
+    description: '개발과 일상에서 얻은 경험과 배움을 정리한 글을 공유합니다.',
+    images: ['/DS.png'],
+  },
+};
 
 export const revalidate = 60;
 
