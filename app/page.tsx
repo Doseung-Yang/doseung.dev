@@ -1,8 +1,29 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import HeroSection from './_components/HeroSection';
 import SkillsSection from './_components/SkillsSection';
 import RecentPostsSlider from './_components/RecentPostsSlider';
 import { getPosts } from './api/lib/notion';
+import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION, SITE_KEYWORDS } from './constants/site';
+
+export const metadata: Metadata = {
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  keywords: [...SITE_KEYWORDS],
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_TITLE,
+    type: 'website',
+    locale: 'ko_KR',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+};
 
 function SliderSkeleton() {
   return (

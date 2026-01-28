@@ -3,6 +3,7 @@ import CommentsSection from '@/app/_components/post/CommentsSection';
 import { getPost, getCommentsByPostId } from '@/app/api/lib/get-post';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { SITE_URL } from '@/app/constants/site';
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .replace(/<[^>]+>/g, ' ')
     .trim()
     .slice(0, 140);
-  const url = `https://do-seung.com/post/${id}`;
+  const url = `${SITE_URL}/post/${id}`;
 
   return {
     title,
@@ -108,7 +109,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             dateModified: post.updatedAt || post.createdAt,
             author: post.author ? [{ '@type': 'Person', name: post.author }] : undefined,
             publisher: { '@type': 'Organization', name: '개발자 도승' },
-            mainEntityOfPage: `https://do-seung.com/post/${id}`,
+            mainEntityOfPage: `${SITE_URL}/post/${id}`,
           }).replace(/</g, '\\u003c'),
         }}
       />
@@ -119,8 +120,8 @@ export default async function BlogPostPage({ params }: PageProps) {
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
             name: '방명록',
-            url: 'https://do-seung.com/post',
-            isPartOf: { '@type': 'WebSite', url: 'https://do-seung.com' },
+            url: `${SITE_URL}/post`,
+            isPartOf: { '@type': 'WebSite', url: SITE_URL },
           }).replace(/</g, '\\u003c'),
         }}
       />

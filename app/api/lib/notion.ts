@@ -12,12 +12,19 @@ export type NotionPost = {
   date?: string;
   published: boolean;
   coverUrl?: string;
+  lastEditedTime?: string;
 };
+
+type NotionPageCover =
+  | { type: 'external'; external: { url: string } }
+  | { type: 'file'; file: { url: string } };
 
 type NotionPage = {
   id: string;
   properties: Record<string, NotionProperty>;
   created_time: string;
+  last_edited_time?: string;
+  cover?: NotionPageCover;
 };
 
 type NotionProperty =
@@ -98,8 +105,16 @@ function mapPageToPost(page: NotionPage): NotionPost {
   if (pubProp?.type === 'checkbox') {
     published = pubProp.checkbox;
   }
-  
-  return { id: page.id, title, slug, description, tags, date, published, coverUrl: undefined };
+
+  const lastEditedTime = page.last_edited_time ?? page.created_time;
+  const coverUrl =
+    page.cover?.type === 'external'
+      ? page.cover.external.url
+      : page.cover?.type === 'file'
+        ? page.cover.file.url
+        : undefined;
+
+  return { id: page.id, title, slug, description, tags, date, published, coverUrl, lastEditedTime };
 }
 
 async function _getPosts(options?: { pageSize?: number; startCursor?: string | null }) {
