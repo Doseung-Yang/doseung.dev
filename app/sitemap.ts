@@ -1,50 +1,53 @@
 import { MetadataRoute } from 'next';
 import { getPosts as getGuestbookPosts } from '@/app/api/lib/get-post';
 import { getPosts as getBlogPosts, getPostUrl } from '@/app/api/lib/notion';
+import { SITE_URL } from '@/app/constants/site';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://do-seung.com';
   const now = new Date();
 
   const staticEntries: MetadataRoute.Sitemap = [
     {
-      url: `${baseUrl}/`,
+      url: `${SITE_URL}/`,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/blog`,
+      url: `${SITE_URL}/blog`,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/about`,
+      url: `${SITE_URL}/about`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/post`,
+      url: `${SITE_URL}/post`,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
   ];
 
-  const guestbookPosts = await getGuestbookPosts();
+  const [guestbookPosts, { posts: blogPosts }] = await Promise.all([
+    getGuestbookPosts(),
+    getBlogPosts({ pageSize: 50 }),
+  ]);
+
   const guestbookEntries: MetadataRoute.Sitemap = (guestbookPosts || []).map(p => ({
-    url: `${baseUrl}/post/${p.id}`,
+    url: `${SITE_URL}/post/${p.id}`,
     lastModified: new Date(p.updatedAt || p.createdAt || now.toISOString()),
     changeFrequency: 'weekly',
     priority: 0.7,
   }));
 
-  const { posts: blogPosts } = await getBlogPosts({ pageSize: 50 });
   const blogEntries: MetadataRoute.Sitemap = (blogPosts || []).map(post => ({
-    url: `${baseUrl}${getPostUrl(post.slug)}`,
-    lastModified: new Date(post.date || now.toISOString()),
+    url: `${SITE_URL}${getPostUrl(post.slug)}`,
+    lastModified: new Date(post.lastEditedTime || post.date || now.toISOString()),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));

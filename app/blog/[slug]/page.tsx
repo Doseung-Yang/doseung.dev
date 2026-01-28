@@ -3,11 +3,11 @@ import { getPostBySlug, getPostContentHtml, getPostUrl, getPosts } from '@/app/a
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Calendar, Tag, Chat } from '@/components/icons';
+import { SITE_URL } from '@/app/constants/site';
 
 export const revalidate = 60;
 
 const MAX_DESCRIPTION_LENGTH = 160;
-const SITE_URL = 'https://do-seung.com';
 
 const normalizeText = (value: string) =>
   value
@@ -36,19 +36,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description = createDescriptionFromHtml(content.html);
   }
   const url = `${SITE_URL}${getPostUrl(post.slug)}`;
+  const ogImage = post.coverUrl ? post.coverUrl : `${SITE_URL}/DS.png`;
+  const descriptionForMeta = description.length > 155 ? `${description.slice(0, 152).trimEnd()}...` : description;
   return {
     title,
-    description,
+    description: descriptionForMeta,
     alternates: { canonical: url },
     openGraph: {
       type: 'article',
       url,
       title,
-      description,
-      images: ['/DS.png'],
+      description: descriptionForMeta,
+      siteName: '개발자 도승',
+      images: [ogImage],
       locale: 'ko_KR',
     },
-    twitter: { card: 'summary_large_image', title, description, images: ['/DS.png'] },
+    twitter: { card: 'summary_large_image', title, description: descriptionForMeta, images: [ogImage] },
   };
 }
 
@@ -61,12 +64,12 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   const description = post.description?.trim() || createDescriptionFromHtml(content.html);
   const postUrl = `${SITE_URL}${getPostUrl(post.slug)}`;
   const publishedDate = post.date ? new Date(post.date).toISOString() : undefined;
-  const articleJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
+  const schemaImage = post.coverUrl ? post.coverUrl : `${SITE_URL}/DS.png`;
+  const blogPostingNode = {
+    '@type': 'BlogPosting',
     headline: post.title,
     description,
-    image: [`${SITE_URL}/DS.png`],
+    image: [schemaImage],
     author: [{ '@type': 'Person', name: '양도승', url: SITE_URL }],
     publisher: {
       '@type': 'Organization',
@@ -78,12 +81,26 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
   };
 
+  const breadcrumbNode = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: '블로그', item: `${SITE_URL}/blog` },
+      { '@type': 'ListItem', position: 3, name: post.title, item: postUrl },
+    ],
+  };
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [blogPostingNode, breadcrumbNode],
+  };
+
   return (
     <article className="max-w-4xl mx-auto py-10 px-6 text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleJsonLd).replace(/</g, '\\u003c'),
+          __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
         }}
       />
       <div className="mb-6">
@@ -99,10 +116,12 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <header className="mb-8">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{post.title}</h1>
 
-        {post.description && <p className="text-xl text-muted-foreground mb-6 leading-relaxed">{post.description}</p>}
+        {post.description ? (
+          <p className="text-xl text-muted-foreground mb-6 leading-relaxed">{post.description}</p>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {post.date && (
+          {post.date ? (
             <time className="flex items-center">
               <Calendar className="w-4 h-4 mr-1" />
               {new Date(post.date).toLocaleDateString('ko-KR', {
@@ -111,9 +130,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 day: 'numeric',
               })}
             </time>
-          )}
+          ) : null}
 
-          {post.tags && post.tags.length > 0 && (
+          {post.tags?.length ? (
             <div className="flex items-center flex-wrap gap-2">
               <Tag className="w-4 h-4" />
               <div className="flex flex-wrap gap-1">
@@ -124,7 +143,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 ))}
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </header>
 
