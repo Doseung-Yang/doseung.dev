@@ -4,15 +4,6 @@
 공부하려고 만든 기술 블로그입니다.
 시간 날 때마다 개선 중입니다.
 
-## 특징
-
-- **깔끔한 UI와 반응형**: Tailwind 기반의 심플한 레이아웃과 모바일 최적화
-- **다크 모드 지원**: 시스템/토글 기반 테마 전환
-- **글 편집/발행 흐름**: 제목/본문 편집, 저장/발행 분리, 상태 피드백(저장됨/실패)
-- **최근 글 슬라이더**: Framer Motion과 자동 재생
-- **SEO**: `sitemap.ts`, `robots.ts`, MetaData/OG/Twitter 카드, 구조화 데이터 포함
-- **접근성과 가독성**: 타이포/여백/대비를 고려한 프리셋
-
 ## 기술 스택
 
 - **Framework**: Next.js(App Router) + TypeScript
@@ -52,7 +43,7 @@ pnpm dev
 ## 기여/피드백
 
 - 이슈/아이디어 환영합니다. 버그 제보 또는 개선 제안은 이슈로 남겨주세요.
-- 개인 문의: `doseung.dev@gmail.com` (예시)
+- 개인 문의: `doseung.dev@gmail.com`
 
 ## License
 
