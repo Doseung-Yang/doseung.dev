@@ -19,6 +19,16 @@ type NotionPageCover =
   | { type: 'external'; external: { url: string } }
   | { type: 'file'; file: { url: string } };
 
+type NotionImageBlock = {
+  id: string;
+  image: {
+    type: 'external' | 'file';
+    external?: { url: string };
+    file?: { url: string };
+    caption?: Array<{ plain_text: string }>;
+  };
+};
+
 type NotionPage = {
   id: string;
   properties: Record<string, NotionProperty>;
@@ -49,6 +59,14 @@ const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
 const notion = new Client({ auth: NOTION_TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
+
+n2m.setCustomTransformer('image', async (block) => {
+  const { id, image } = block as NotionImageBlock;
+  const url = image.type === 'external' ? image.external?.url : image.file?.url;
+  if (!url) return '';
+  const caption = image.caption?.[0]?.plain_text ?? '';
+  return `![${caption}](https://www.notion.so/image/${encodeURIComponent(url)}?table=block&id=${id}&cache=v2)`;
+});
 
 function getProperty<T extends NotionProperty = NotionProperty>(
   page: NotionPage,
