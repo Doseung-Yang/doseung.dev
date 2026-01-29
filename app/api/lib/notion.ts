@@ -64,7 +64,8 @@ n2m.setCustomTransformer('image', async (block) => {
   const { id, image } = block as NotionImageBlock;
   const url = image.type === 'external' ? image.external?.url : image.file?.url;
   if (!url) return '';
-  const caption = image.caption?.[0]?.plain_text ?? '';
+  const rawCaption = image.caption?.[0]?.plain_text ?? '';
+  const caption = rawCaption.replace(/[\\\[\]\(\)]/g, '\\$&');
   return `![${caption}](https://www.notion.so/image/${encodeURIComponent(url)}?table=block&id=${id}&cache=v2)`;
 });
 
